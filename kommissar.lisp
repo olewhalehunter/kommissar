@@ -1,9 +1,9 @@
 ;; to-do:
 ;; -
-;; toggle show info above each id'd element
-;; toggle show toolbar
-;; set-text button only visible on input/textarea
+;; multi-page workflows
 ;; record scrape/bind value -> dictionary
+;; toggle show info above each id'd element
+;; set-text button only visible on input/textarea
 ;; ensure tool divs coordinates fully in view
 ;;  --
 ;; record tab changes
@@ -28,7 +28,6 @@
     (:compile-toplevel :load-toplevel :execute)
   (ql:quickload :telnetlib))
 ) (package-init)
-(defparameter workflow-dir "c:/Users/andersen.puckett/Desktop/emacs/emacs-tools/")
 (defparameter kom-session '())
 (defparameter moz-return-val "")
 (defparameter kommissar-js-folder
@@ -44,8 +43,10 @@
 	       collect line))))
 (defun moz-wrapper (input)
   (concatenate 'string "\"START\" + (" input ") + \"END\""))
-(defun moz-eval (input)  
-  (telnetlib:write-ln kom-session (moz-wrapper input))
+(defun moz-send (input)
+  (telnetlib:write-ln kom-session input))
+(defun moz-eval (input)
+  (moz-send (moz-wrapper input))
   (print (telnetlib:read-until kom-session "START"))
   (let ((retval (string-trim "END"
 			     (telnetlib:read-until kom-session "END" ))))
@@ -58,6 +59,7 @@
 		kommissar-js-folder file-name "\")"))
   ;;(print (telnetlib:read-available-data kom-session))
   )
+
 (defun refresh ()
   (moz-eval "content.location.href = content.location.href"))
 (defun forward-tab ()
@@ -74,7 +76,6 @@
 (defun close-tab (tab-id)
  (moz-eval (concatenate 'string
 			"closeTab(\"" tab-id "\")")))
-
 (defun scroll-down ()
   (moz-eval "scrollDown()"))
 (defun scroll-up ()
@@ -104,7 +105,7 @@
   (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
-  (print (moz-eval  "content.location.href = content.location.href"))
+  (print (moz-send "alert(\"Kommissar started!\")"))
   (moz-eval-file "tabs.js")
 )
 
@@ -146,7 +147,7 @@
 			    collect (action-sexp x)))
 		 "~%) ;;(workflow-script)"))
   
-  (with-open-file (file (concatenate 'string workflow-dir name ".lisp")
+  (with-open-file (file (concatenate 'string name ".lisp")
                      :direction :output
                      :if-exists :supersede
                      :if-does-not-exist :create)
@@ -161,7 +162,6 @@
 )
 
 ;; (store-workflow "testworkflow")
-;; json obj val access macro? DSL for load file?
 
 (defun mouse-click (target-key)
   (let ((element (jsown:val elements target-key)))

@@ -1,15 +1,5 @@
 ;; Emacs binds
 
-(defun kommissar-init ()
-  (slime-load-file "kommissar.lisp")
-  (lispy-eval-lisp "(load \"kommissar.lisp\")")
-  
-) (kommissar-init)
-
-(defmacro kom-eval (input)
-  `(cadr (slime-eval '(swank:eval-and-grab-output 
-		       ,input))))
-
 (defun eval-slime (str)
   "Eval STR as Common Lisp code."
   (unless (slime-current-connection)
@@ -24,7 +14,6 @@
 
 (defun kom-start ()
   (interactive)
-  (slime-load-file "kommissar.lisp")
   (eval-slime "(kommissar::start-kommissar)")
   )
 
@@ -70,8 +59,8 @@
 
 ; (global-set-key (kbd "M-s") 'moz-back-tab)
 ; (global-set-key (kbd "M-e") 'moz-send-region)
-
-(kommissar-init)
+(slime-load-file "kommissar.lisp")
+(kom-start)
 ;; pref("extensions.mozrepl.autoStart", true);
 ;; ^ put in "pref.js" in firefox profile directory during installer
 ;; (eshell-command "cp ~/emacs-tools/kommissar.lisp ~/projects/kommissar/kommissar.lisp")
