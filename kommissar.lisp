@@ -104,11 +104,14 @@
   (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
-  
   (print (moz-eval  "content.location.href = content.location.href"))
   (moz-eval-file "tabs.js")
 )
-(start-moz-client)
+
+(defun start-kommissar ()
+  (ignore-errors
+    (start-moz-client)))
+(start-kommissar)
 
 (defun json-decode (json-string)
   (jsown:parse json-string))

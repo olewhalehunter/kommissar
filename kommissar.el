@@ -10,7 +10,7 @@
   `(cadr (slime-eval '(swank:eval-and-grab-output 
 		       ,input))))
 
-(defun lispy-eval-lisp (str)
+(defun eval-slime (str)
   "Eval STR as Common Lisp code."
   (unless (slime-current-connection)
     (let ((wnd (current-window-configuration)))
@@ -22,9 +22,15 @@
   (let (deactivate-mark)
     (cadr (slime-eval `(swank:eval-and-grab-output ,str)))))
 
+(defun kom-start ()
+  (interactive)
+  (slime-load-file "kommissar.lisp")
+  (eval-slime "(kommissar::start-kommissar)")
+  )
+
 (defun kom-refresh ()
   (interactive)
-  (lispy-eval-lisp "(kommissar::refresh)"))
+  (eval-slime "(kommissar::refresh)"))
 (defun kom-scroll-down ()
   (interactive)
   (lispy-eval-lisp "(kommissar::scroll-down)"))
@@ -42,17 +48,19 @@
   (lispy-eval-lisp
    (concat "(kommissar::open-url \""
 	   (read-string "URL: ")"\" \"kommissarTab\")")))
+
 (defun kom-google ()
   (interactive)
-  (lispy-eval-lisp
+  (eval-slime
    (concat "(kommissar::open-url \"http://www.google.com/search?q="
 			  (replace-regexp-in-string " " "+" 
 						    (read-from-minibuffer "google: "))
 			  "\" \"kommissarTab\")"
 			  ))
-  (lispy-eval-lisp "(kommissar::goto-tab \"Goog\")")
+  (eval-slime "(kommissar::goto-tab \"Goog\")")
   )
 
+(set-key "<f4>" 'kom-start)
 (set-key "<f5>" 'kom-refresh)
 (set-key "<f12>" 'kom-scroll-down)
 (set-key "<f11>" 'kom-scroll-up)
@@ -69,6 +77,7 @@
 ;; (eshell-command "cp ~/emacs-tools/kommissar.lisp ~/projects/kommissar/kommissar.lisp")
 ;; (eshell-command "cp ~/emacs-tools/kommissar.el ~/projects/kommissar/kommissar.el")
 ;; (eshell-command "cp ~/emacs-tools/kommissar-js/kommissar-utils.js ~/projects/kommissar/kommissar-js/kommissar-utils.js")
+;; ;; (eshell-command "cp ~/emacs-tools/testworkflow.lisp ~/projects/kommissar/testworkflow.lisp")
 
 
 
