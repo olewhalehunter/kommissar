@@ -31,10 +31,10 @@
   (lispy-eval-lisp "(kommissar::forward-tab)"))
 (defun kom-backward-tab ()
   (interactive)
-  (lispy-eval-lisp "(kommissar::backward-tab)"))
+  (eval-slime "(kommissar::backward-tab)"))
 (defun kom-open-url ()
   (interactive)
-  (lispy-eval-lisp
+  (eval-slime
    (concat "(kommissar::open-url \""
 	   (read-string "URL: ")"\" \"kommissarTab\")")))
 
