@@ -1,5 +1,6 @@
 Kommissar - Lisp Browser Automation
 ===========
+![sample](https://github.com/olewhalehunter/kommissar/blob/master/screenshot.png?raw=true)
 Kommissar is a
 
 1. browser automation development environment using Emacs and an interactive browser addon
