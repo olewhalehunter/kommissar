@@ -13,7 +13,9 @@
 /* Kommissar Util Functions
 browser GUI...
 ----
-consolidated namespace for workflow
+dropdown selection action (copy -> 
+show identified elements page toolbar key
+record dictionary value scrape/bind
 
 start new workflow
  url of starting page
@@ -94,6 +96,17 @@ function recordClickAction(){
     updateActionList();
 }
 
+function recordScrapeAction(){
+    storeAction({
+	target : curObject.key,
+	action : "dict-scrape",
+	args : [recordScrapeInput.value, curElement.innerHTML]
+    });
+    updateActionList();
+    dict[recordScrapeInput.value] = curElement.innerHTML;
+    dictD.innerHTML = JSON.stringify(dict);
+}
+
 function storeAction(action){
     actions.push(action);
     actionsD.innerHTML = JSON.stringify(actions);
@@ -103,7 +116,6 @@ function storeElement(value){
     elements[value.key] = value;
     elemsPath[value.xPath] = value;
     elementsD.innerHTML = JSON.stringify(elements);
-    dictD.innerHTML = JSON.stringify(elemsPath);
 }
 
 function getElementByXpath(path) {
@@ -188,15 +200,17 @@ function initKomToolbar() {
     komToolbarInfo2 = window.document.createElement("div");
     komToolbarInfo3 = window.document.createElement("div");
     komToolbarInfo4 = window.document.createElement("div");
+    komToolbarInfo5 = window.document.createElement("div");
     komToolbarInfo.innerHTML = "[F1] -  toggle show current element  .";
     komToolbarInfo2.innerHTML = "[F2] - record action for element  .";
     komToolbarInfo3.innerHTML = "[F3] - toggle show identified elements  .";
     komToolbarInfo4.innerHTML = "[F4] - toggle show action list.";
+    komToolbarInfo5.innerHTML = "[F8] - toggle hide toolbar.";
     komToolbar.appendChild(komToolbarInfo);
     komToolbar.appendChild(komToolbarInfo2);
     komToolbar.appendChild(komToolbarInfo3);
     komToolbar.appendChild(komToolbarInfo4);
-
+    komToolbar.appendChild(komToolbarInfo5);
 }
 initKomToolbar()
 
@@ -246,6 +260,18 @@ function initRecordTool(){
     recordClickButton = addButton(recordTool, "Record Click", null);
     recordClickButton.onclick =  function () { recordClickAction(); };
     recordClickButton.style.display = "none";
+
+    addDiv(recordTool, "</br>")
+    recordScrapeInput = document.createElement("input");
+    recordScrapeInput.setAttribute("type", "text");
+    recordScrapeInput.setAttribute("id", "scrapeInput");
+    recordTool.appendChild(recordScrapeInput);
+    recordScrapeInput.placeholder = "variable name to store";
+    recordScrapeInput.style.display = "none";
+
+    recordScrapeButton = addButton(recordTool, "Record Scrape Value", null);
+    recordScrapeButton.onclick =  function () { recordScrapeAction(); };
+    recordScrapeButton.style.display = "none";
 }
 initRecordTool()
 
@@ -259,6 +285,10 @@ content.document.onmousemove = function (e) {
 	curElement = content.document.elementFromPoint(mouseX, mouseY);
     if (elemsPath[getElementXPath(curElement)]){
 	recordTextInput.style.display = "inline";
+	recordTextButton.style.display = "inline";
+	recordClickButton.style.display = "inline";
+	recordScrapeInput.style.display = "inline";
+	recordScrapeButton.style.display = "inline";
 	recordXPath.innerHTML = "Key = " 
 	+ elemsPath[getElementXPath(curElement)].key;
     }
@@ -301,15 +331,18 @@ window.onkeydown = function(e) {
 		recordTextInput.style.display = "inline";
 		recordTextButton.style.display = "inline";
 		recordClickButton.style.display = "inline";
+		recordScrapeInput.style.display = "inline";
+		recordScrapeButton.style.display = "inline";
 		recordXPath.style.display = "none";
 		recordKeyname.innerHTML = "";
-		recordKeynameInput.value = 
-		    curObject.key;
+		recordKeynameInput.value =  curObject.key;
 
 	    } else { // Unidentified Element
 		recordTextButton.style.display = "none";
 		recordTextInput.style.display = "none";
 		recordClickButton.style.display = "none";
+		recordScrapeInput.style.display = "none";
+		recordScrapeButton.style.display = "none";
 		recordXPath.style.color = "red";
 		recordXPath.style.display = "block";
 		recordKeynameInput.value = "";
@@ -341,6 +374,18 @@ window.onkeydown = function(e) {
 	    actionList.style.display = "none";
 	}
     }
+    if (key == 116) {  } // F5
+    if (key == 117) {  } // F6
+    if (key == 118) {  } // F7
+    if (key == 119) {   // F8
+	showToolbar = !showToolbar;	
+	if (showToolbar){
+	    komToolbar.style.display = "inline";
+	} else {
+	    komToolbar.style.display = "none";
+	}
+    }
+    
 }
 
 function getElementXPath(element) {

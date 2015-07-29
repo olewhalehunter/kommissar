@@ -1,14 +1,17 @@
 ;; to-do:
 ;; -
 ;; multi-page workflows
+"start workflow command (query for url or blank for use current/none)"
+"create current workflow object"
+"master listener for tool postbacks"
+"postback to master lisp to store elements with each record"
 ;; record scrape/bind value -> dictionary
+;; highlight border of current/hovered element
 ;; toggle show info above each id'd element
-;; set-text button only visible on input/textarea
 ;; ensure tool divs coordinates fully in view
 ;;  --
 ;; record tab changes
 ;; action-by-action runthrough of recording
-;; highlight border of current/hovered element
 ;; sequences of elements by interactive xpath regex highlight
 ;; re-edit/re-order? actions in gui
 ;; schmancy GUI styling
@@ -18,9 +21,10 @@
 ;; -user-select workaround wo stylish
 ;; GUI fix without scriptish, rewrite mozrepl as new addon?
 ;; google mouse track event fix
+;; set-text button only visible on input/textarea
 
 (ql:quickload :telnetlib)
-(ql:quickload :jsown) 
+(ql:quickload :jsown)
 (defun package-init ()
 (defpackage :kommissar (:use :cl :telnetlib))
 (in-package :kommissar)
@@ -60,6 +64,8 @@
   ;;(print (telnetlib:read-available-data kom-session))
   )
 
+(defun current-url ()
+  (moz-eval "content.location.href"))
 (defun refresh ()
   (moz-eval "content.location.href = content.location.href"))
 (defun forward-tab ()
@@ -83,6 +89,27 @@
 (defun get-html (id)
   (moz-eval (concatenate 'string
 			 "content.document.getElementById(\"" id "\").innerHTML")))
+
+(defun mouse-click (target-key)
+  (let ((element (jsown:val elements target-key)))
+    (print 
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".click()")))))
+
+(defun set-text (target-key text)
+ (let ((element (jsown:val elements target-key)))
+    (print 
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".value = '" text "'")))))
+
+(defun dict-scrape (target-key)
+(let ((element (jsown:val elements target-key)))
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".innerHTML"))))
+
 
 (defun unit-tests ()
   (forward-tab)
@@ -155,7 +182,7 @@
 	  "(in-package :kommissar)~%"
 	  (load-elements-string) "~%"
 	  (load-actions-string)
-	  ;;(load-dictionary-string)
+	  ;;(load-dictionary-string) transactional dict record?
 	  (load-script)
 	  )
 	  ))
@@ -163,19 +190,6 @@
 
 ;; (store-workflow "testworkflow")
 
-(defun mouse-click (target-key)
-  (let ((element (jsown:val elements target-key)))
-    (print 
-    (moz-eval (concatenate 'string
-     (get-elem (jsown:val element "xPath"))
-     ".click()")))))
-
-(defun set-text (target-key text)
- (let ((element (jsown:val elements target-key)))
-    (print 
-    (moz-eval (concatenate 'string
-     (get-elem (jsown:val element "xPath"))
-     ".value = '" text "'")))))
 
 (defun action-sexp (action)
   (let ((target-key (jsown:val action "target"))
@@ -183,6 +197,8 @@
 	(args (jsown:val action "args")))
     (print action-type)
      (cond
+       ((string= action-type "dict-scrape") (concatenate 'string
+	"(setq " (first args) " (dict-scrape \"" target-key "\"))"))
        ((string= action-type "mouse-click") (concatenate 'string
 	"(mouse-click \"" target-key "\")"))
        ((string= action-type "set-text") (concatenate 'string
