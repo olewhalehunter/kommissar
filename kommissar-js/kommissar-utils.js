@@ -14,6 +14,19 @@ var showHoverInfo = false;
 var showRecordTool = false;
 var showActionList = false;
 var curElement, curObject
+
+function addTag(text){
+    tag = window.document.createElement("div");
+    tag.innerHTML = text;
+    this.appendChild(tag);
+}
+function addDiv(parent, text){
+    var elem = window.document.createElement("div");
+    elem.id = text + "Div";
+    parent.appendChild(elem);
+    elem.innerHTML  text;
+    return elem;
+}
 function addButton(parent, text, func){
     var button  = document.createElement("button");
     button.setAttribute("type", "button");
@@ -21,13 +34,6 @@ function addButton(parent, text, func){
     button.innerHTML =  text;
     parent.appendChild(button);
     return button;
-}
-function addDiv(parent, text){
-    var elem = window.document.createElement("div");
-    elem.id = text + "Div";
-    parent.appendChild(elem);
-    elem.innerHTML =text;
-    return elem;
 }
 
 elementsD = addDiv(window.document.body, "placeholder");
@@ -44,7 +50,6 @@ dict = {} // variable key->value lookup for runtime
 elements = {}; // elements by Kommissar keyname ID
 elemsPath = {}; // elements by xPath
 actions = []; // actions by function keyname
-
 elementsD.innerHTML = "{}";
 dictD.innerHTML = "{}";
 
@@ -56,9 +61,6 @@ function updateActionList() {
 	    + " (" + action.args.map(function (x) { return "\""+x+"\"";}) + ")</br>";
     }
 }
-
-// (set-text 'searchbar "search string")
-// -> (moz-eval "setText(\"searchbar1\", \"search string\")")
 
 function recordSetTextAction(){
     storeAction({
@@ -161,12 +163,6 @@ function initHoverInfo() {
 initHoverInfo()
 
 function mergeObj(obj1, obj2){ for(var key in obj2) obj1[key]=obj2[key];}
-
-function addTag(text){
-    tag = window.document.createElement("div");
-    tag.innerHTML = text;
-    this.appendChild(tag);
-}
 
 function initKomToolbar() {
     komToolbar = window.document.createElement("div");
@@ -355,9 +351,6 @@ window.onkeydown = function(e) {
 	    actionList.style.display = "none";
 	}
     }
-    if (key == 116) {  } // F5
-    if (key == 117) {  } // F6
-    if (key == 118) {  } // F7
     if (key == 119) {   // F8
 	showToolbar = !showToolbar;	
 	if (showToolbar){
@@ -366,18 +359,13 @@ window.onkeydown = function(e) {
 	    komToolbar.style.display = "none";
 	}
     }
-    
 }
 
 function getElementXPath(element) {
-    if (element && element.id)
-        return '//*[@id="' + element.id + '"]';
-    else
-        return "/" + this.getElementTreeXPath(element);
-}
+    if (element && element.id) return '//*[@id="' + element.id + '"]';
+    else return "/" + this.getElementTreeXPath(element); }
 function getElementTreeXPath(element) {
     var paths = [];
-
     for (; element && element.nodeType == 1; element = element.parentNode)
     {
         var index = 0;
@@ -393,9 +381,6 @@ function getElementTreeXPath(element) {
         var pathIndex = (index ? "[" + (index+1) + "]" : "");
         paths.splice(0, 0, tagName + pathIndex);
     }
-
-    return paths.length ? "/" + paths.join("/") : null;
-}
+    return paths.length ? "/" + paths.join("/") : null; }
 function getElementByXpath(path) {
-  return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-}
+  return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;}
