@@ -103,10 +103,6 @@ function storeElement(value){
     elementsD.innerHTML = JSON.stringify(elements);
 }
 
-function getElementByXpath(path) {
-  return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-}
-
 function identifyElement(){
     curObject = {
 	xPath : getElementXPath(curElement),
@@ -293,15 +289,17 @@ window.onresize = function(event) {
     //komToolbar = document.getElementById("komToolbar");
 }
 
+function flipDisplay(elem){
+    if (elem.style.display == "none") elem.style.display = "inline";
+    else elem.style.display = "none";}
+
 // KEYPRESS FUNCTIONS
 window.onkeydown = function(e) {
     var key = e.keyCode;    
     if (key == 112) { //F1
 	showHoverInfo = !showHoverInfo;
-	if (!showHoverInfo)
-	    hoverInfo.style.display = "none";
-	else
-	    hoverInfo.style.display = "inline";
+	if (!showHoverInfo) hoverInfo.style.display = "none";
+	else hoverInfo.style.display = "inline";
     }
     if (key == 113) { //F2
 	showRecordTool = !showRecordTool;
@@ -312,21 +310,21 @@ window.onkeydown = function(e) {
 	    if (elemsPath[getElementXPath(curElement)]){ 
 		// Element already ID'd
 		curObject = elemsPath[getElementXPath(curElement)];
-		recordTextInput.style.display = "inline";
-		recordTextButton.style.display = "inline";
-		recordClickButton.style.display = "inline";
-		recordScrapeInput.style.display = "inline";
-		recordScrapeButton.style.display = "inline";
+		[recordTextInput,
+		recordTextButton,
+		recordClickButton,
+		recordScrapeInput,
+		recordScrapeButton].map(flipDisplay);
 		recordXPath.style.display = "none";
 		recordKeyname.innerHTML = "";
 		recordKeynameInput.value =  curObject.key;
 
 	    } else { // Unidentified Element
-		recordTextButton.style.display = "none";
-		recordTextInput.style.display = "none";
-		recordClickButton.style.display = "none";
-		recordScrapeInput.style.display = "none";
-		recordScrapeButton.style.display = "none";
+		[recordTextButton,
+		recordTextInput,
+		recordClickButton,
+		recordScrapeInput,
+		recordScrapeButton].map(flipDisplay);
 		recordXPath.style.color = "red";
 		recordXPath.style.display = "block";
 		recordKeynameInput.value = "";
@@ -346,8 +344,7 @@ window.onkeydown = function(e) {
 	    recordXPath.innerHTML = getElementXPath(curElement);	    
 	}
     }
-    if (key == 114) { //F3
-	
+    if (key == 114) { //F3 
     }
     if (key == 115) { //F4
 	showActionList = !showActionList;
@@ -399,10 +396,6 @@ function getElementTreeXPath(element) {
 
     return paths.length ? "/" + paths.join("/") : null;
 }
-
 function getElementByXpath(path) {
   return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
-
-
-
