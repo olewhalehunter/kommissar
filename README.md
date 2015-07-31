@@ -20,3 +20,5 @@ It is currently under without an installer, to try to run it:
 * load kommissar.el in emacs
 * eval commands in kommissar.lisp with SLIME
 
+The end product will include an option for a monolithic GUI intended for non-emacs users with the ability for laymen to create their own browser scripts, bots, and workflows, and to have a repository for users to share, collaborate, and work on a collection of scripts.
+
