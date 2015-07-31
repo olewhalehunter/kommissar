@@ -14,7 +14,7 @@ var showHoverInfo = false;
 var showRecordTool = false;
 var showActionList = false;
 var curElement, curObject
-
+function mergeObj(obj1, obj2){ for(var key in obj2) obj1[key]=obj2[key];}
 function addTag(text){
     tag = window.document.createElement("div");
     tag.innerHTML = text;
@@ -24,7 +24,7 @@ function addDiv(parent, text){
     var elem = window.document.createElement("div");
     elem.id = text + "Div";
     parent.appendChild(elem);
-    elem.innerHTML  text;
+    elem.innerHTML = text;
     return elem;
 }
 function addButton(parent, text, func){
@@ -151,23 +151,18 @@ initActionList()
 
 function initHoverInfo() {
     hoverInfo = window.document.createElement("div");
-    hoverInfo.style.position = "fixed";
-    hoverInfo.style.width = "100px";
-    hoverInfo.style.height = "100px";
-    hoverInfo.style.color = "green";
-    hoverInfo.style.zIndex = 2147483646;
-    hoverInfo.style.backgroundColor = "white";
-
-    content.document.body.appendChild(hoverInfo);
-} 
+    mergeObj(hoverInfo.style,   {position : "fixed",
+				 width : "100px",
+				 height : "100px",
+				 color : "green",
+				 zIndex : 2147483646,
+				 backgroundColor : "white"});
+    content.document.body.appendChild(hoverInfo);} 
 initHoverInfo()
-
-function mergeObj(obj1, obj2){ for(var key in obj2) obj1[key]=obj2[key];}
 
 function initKomToolbar() {
     komToolbar = window.document.createElement("div");
-    komToolbar.id = "komToolbar";
-    
+    komToolbar.id = "komToolbar";    
     mergeObj(komToolbar.style, {position : "fixed",
 				 left : "50px",
 				 bottom : "50px",
@@ -256,8 +251,7 @@ var mouseMovDelay = 0
 var mouseX, mouseY
 content.document.onmousemove = function (e) {
     mouseMovDelay += 1;
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    mouseX = e.clientX;  mouseY = e.clientY;
     if (!showRecordTool)
 	curElement = content.document.elementFromPoint(mouseX, mouseY);
     if (elemsPath[getElementXPath(curElement)]){
@@ -272,8 +266,7 @@ content.document.onmousemove = function (e) {
     if (mouseMovDelay % 2 == 0) {
 	if (showHoverInfo) {
 	    mouseMovDelay = 1;
-	    mouseX = e.clientX;
-	    mouseY = e.clientY;
+	    mouseX = e.clientX; mouseY = e.clientY;
 	    hoverInfo.style.left = mouseX + 20 +"px";
 	    hoverInfo.style.top = mouseY - 20 +"px";
 	    hoverInfo.innerHTML =  getElementXPath(curElement);	    
