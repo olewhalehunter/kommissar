@@ -3,27 +3,12 @@
 // @name           sandboxxxxxx
 // @version        1.0
 // @namespace      kommissar
-// @author         
-// @description    
 // @include        *
 // @run-at         document-end
 // @grant unsafeWindow
 // ==/UserScript==
 
-/* Kommissar Util Functions
-browser GUI...
-----
-dropdown selection action (copy -> 
-show identified elements page toolbar key
-record dictionary value scrape/bind
-
-start new workflow
- url of starting page
- variable image -> dictionary for workflow logic 
- record visit to next url in toolbar
-load recorded page elements from old workflow
-*/
-
+/* Kommissar Browser GUI*/
 var showToolbar = true;
 var showHoverInfo = false;
 var showRecordTool = false;
@@ -179,53 +164,53 @@ function initHoverInfo() {
 } 
 initHoverInfo()
 
+function mergeObj(obj1, obj2){ for(var key in obj2) obj1[key]=obj2[key];}
+
+function addTag(text){
+    tag = window.document.createElement("div");
+    tag.innerHTML = text;
+    this.appendChild(tag);
+}
+
 function initKomToolbar() {
     komToolbar = window.document.createElement("div");
     komToolbar.id = "komToolbar";
-    komToolbar.style.position = "fixed";
-    komToolbar.style.left = "50px";
-    komToolbar.style.bottom = "50px";
-    komToolbar.style.width = "350px";
-    komToolbar.style.height = "75px";
-    komToolbar.style.color = "black";
-    komToolbar.style.fontSize = "10px";
-    komToolbar.style.cursor = "auto !important";
-
-    komToolbar.style.zIndex = 2147483646;
-    komToolbar.style.backgroundColor = "white";
-
+    
+    mergeObj(komToolbar.style, {position : "fixed",
+				 left : "50px",
+				 bottom : "50px",
+				 width : "350px",
+				 height : "75px",
+				 color : "black",
+				 fontSize : "10px",
+				 cursor : "auto !important",
+				 zIndex : 2147483646,
+				 backgroundColor : "white"});
     content.document.body.appendChild(komToolbar);
 
-    komToolbarInfo = window.document.createElement("div");
-    komToolbarInfo2 = window.document.createElement("div");
-    komToolbarInfo3 = window.document.createElement("div");
-    komToolbarInfo4 = window.document.createElement("div");
-    komToolbarInfo5 = window.document.createElement("div");
-    komToolbarInfo.innerHTML = "[F1] -  toggle show current element  .";
-    komToolbarInfo2.innerHTML = "[F2] - record action for element  .";
-    komToolbarInfo3.innerHTML = "[F3] - toggle show identified elements  .";
-    komToolbarInfo4.innerHTML = "[F4] - toggle show action list.";
-    komToolbarInfo5.innerHTML = "[F8] - toggle hide toolbar.";
-    komToolbar.appendChild(komToolbarInfo);
-    komToolbar.appendChild(komToolbarInfo2);
-    komToolbar.appendChild(komToolbarInfo3);
-    komToolbar.appendChild(komToolbarInfo4);
-    komToolbar.appendChild(komToolbarInfo5);
+    ["[F1] -  toggle show current element  .",
+    "[F2] - record action for element  .",
+    "[F3] - toggle show identified elements  .",
+    "[F4] - toggle show action list.",
+    "[F8] - toggle hide toolbar."].map(addTag, komToolbar);
 }
 initKomToolbar()
 
 function initRecordTool(){
     recordTool = window.document.createElement("div");
-    recordTool.style.width = "350px";
-    recordTool.style.height = "75px";
-    recordTool.style.color = "black";
-    recordTool.style.fontSize = "small";
-    recordTool.style.position = "fixed";
-    recordTool.id = "recordTool";
+    recordTool.id = id =  "recordTool",
+    mergeObj(recordTool.style, {position : "fixed",
+				left : "50px",
+				bottom : "50px",
+				width : "350px",
+				height : "75px",
+				color : "black",
+				fontSize : "small",
+				cursor : "auto !important",
+				zIndex : 2147483646,
+				display : 'inline',
+				backgroundColor : "white"});
 
-    recordTool.style.zIndex = 2147483646;
-    recordTool.style.backgroundColor = "white";
-    recordTool.style.display = 'inline';
     recordTool.innerHTML = "Identify element and record actions.";
     content.document.body.appendChild(recordTool);
 
@@ -310,8 +295,7 @@ window.onresize = function(event) {
 
 // KEYPRESS FUNCTIONS
 window.onkeydown = function(e) {
-    var key = e.keyCode;
-    
+    var key = e.keyCode;    
     if (key == 112) { //F1
 	showHoverInfo = !showHoverInfo;
 	if (!showHoverInfo)
