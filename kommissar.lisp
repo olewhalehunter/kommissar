@@ -1,14 +1,16 @@
 ;; to-do:
 ;; -
 ;; multi-page workflows
+"create current workflow object"
+"master listener for tool postbacks"
+"postback to master workflow lisp obj to store elements with each record"
 ;; record scrape/bind value -> dictionary
+;; highlight border of current/hovered element
 ;; toggle show info above each id'd element
-;; set-text button only visible on input/textarea
 ;; ensure tool divs coordinates fully in view
 ;;  --
 ;; record tab changes
 ;; action-by-action runthrough of recording
-;; highlight border of current/hovered element
 ;; sequences of elements by interactive xpath regex highlight
 ;; re-edit/re-order? actions in gui
 ;; schmancy GUI styling
@@ -18,9 +20,10 @@
 ;; -user-select workaround wo stylish
 ;; GUI fix without scriptish, rewrite mozrepl as new addon?
 ;; google mouse track event fix
+;; set-text button only visible on input/textarea
 
 (ql:quickload :telnetlib)
-(ql:quickload :jsown) 
+(ql:quickload :jsown)
 (defun package-init ()
 (defpackage :kommissar (:use :cl :telnetlib))
 (in-package :kommissar)
@@ -73,6 +76,8 @@
 (defun open-url (url tab-id)
   (moz-eval (concatenate 'string
 			 "openTab(\"" url "\", \"" tab-id "\")")))
+(defun page-url ()
+  (moz-eval "content.location.href"))
 (defun close-tab (tab-id)
  (moz-eval (concatenate 'string
 			"closeTab(\"" tab-id "\")")))
@@ -102,7 +107,7 @@
 (defun start-moz-client ()
   (ignore-errors (close-telnet-session kom-session))
   (ignore-errors  (moz-eval "repl.quit()"))
-  (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
+  (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 2323))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
   (print (moz-send "alert(\"Kommissar started!\")"))
@@ -113,6 +118,42 @@
   (ignore-errors
     (start-moz-client)))
 (start-kommissar)
+
+(defun sethash (table key value)
+  (setf (gethash key table) value))
+
+(defparameter workflows (make-hash-table))
+(defparameter current-workflow (make-hash-table))
+
+
+(defun setup-workflow (workflow-name workflow-url)
+  workflow-url
+  (setq current-workflow)
+  (setq current-workflow (make-hash-table))
+  (sethash current-workflow 'key
+	   (make-symbol workflow-name))
+  )
+
+; (sethash *my-hash* 'first-key 3)
+; (gethash 'first-key *my-hash*)
+
+
+(defun create-workflow ()
+  (format t "Creating Kommissar workflow...")
+  (format t "Workflow Name?~%:")
+  (let ((workflow-name (read-line)))
+    (format t "Workflow starting url?: (blank for current, 'none' for agnostic script)~%:")
+    (let ((workflow-url (read-line)))
+      (cond
+	((string= workflow-url "")
+	 (setq workflow-url (page-url)))
+	((string= workflow-url "none")
+	 (setq workflow-url "")))
+      (setup-workflow workflow-name workflow-url))))
+;; (create-workflow)
+
+      
+;; get workflow name/url, blank defaults
 
 (defun json-decode (json-string)
   (jsown:parse json-string))
@@ -187,3 +228,4 @@
 	"(mouse-click \"" target-key "\")"))
        ((string= action-type "set-text") (concatenate 'string
 	"(set-text \"" target-key "\" \"" (first args) "\")")))))
+
