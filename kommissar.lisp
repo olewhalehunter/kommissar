@@ -1,9 +1,10 @@
 ;; to-do:
 ;; -
 ;; multi-page workflows
+"start workflow command (query for url or blank for use current/none)"
 "create current workflow object"
 "master listener for tool postbacks"
-"postback to master workflow lisp obj to store elements with each record"
+"postback to master lisp to store elements with each record"
 ;; record scrape/bind value -> dictionary
 ;; highlight border of current/hovered element
 ;; toggle show info above each id'd element
@@ -63,6 +64,8 @@
   ;;(print (telnetlib:read-available-data kom-session))
   )
 
+(defun current-url ()
+  (moz-eval "content.location.href"))
 (defun refresh ()
   (moz-eval "content.location.href = content.location.href"))
 (defun forward-tab ()
@@ -76,8 +79,6 @@
 (defun open-url (url tab-id)
   (moz-eval (concatenate 'string
 			 "openTab(\"" url "\", \"" tab-id "\")")))
-(defun page-url ()
-  (moz-eval "content.location.href"))
 (defun close-tab (tab-id)
  (moz-eval (concatenate 'string
 			"closeTab(\"" tab-id "\")")))
@@ -88,6 +89,27 @@
 (defun get-html (id)
   (moz-eval (concatenate 'string
 			 "content.document.getElementById(\"" id "\").innerHTML")))
+
+(defun mouse-click (target-key)
+  (let ((element (jsown:val elements target-key)))
+    (print 
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".click()")))))
+
+(defun set-text (target-key text)
+ (let ((element (jsown:val elements target-key)))
+    (print 
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".value = '" text "'")))))
+
+(defun dict-scrape (target-key)
+(let ((element (jsown:val elements target-key)))
+    (moz-eval (concatenate 'string
+     (get-elem (jsown:val element "xPath"))
+     ".innerHTML"))))
+
 
 (defun unit-tests ()
   (forward-tab)
@@ -107,7 +129,7 @@
 (defun start-moz-client ()
   (ignore-errors (close-telnet-session kom-session))
   (ignore-errors  (moz-eval "repl.quit()"))
-  (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 2323))
+  (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
   (print (moz-send "alert(\"Kommissar started!\")"))
@@ -118,42 +140,6 @@
   (ignore-errors
     (start-moz-client)))
 (start-kommissar)
-
-(defun sethash (table key value)
-  (setf (gethash key table) value))
-
-(defparameter workflows (make-hash-table))
-(defparameter current-workflow (make-hash-table))
-
-
-(defun setup-workflow (workflow-name workflow-url)
-  workflow-url
-  (setq current-workflow)
-  (setq current-workflow (make-hash-table))
-  (sethash current-workflow 'key
-	   (make-symbol workflow-name))
-  )
-
-; (sethash *my-hash* 'first-key 3)
-; (gethash 'first-key *my-hash*)
-
-
-(defun create-workflow ()
-  (format t "Creating Kommissar workflow...")
-  (format t "Workflow Name?~%:")
-  (let ((workflow-name (read-line)))
-    (format t "Workflow starting url?: (blank for current, 'none' for agnostic script)~%:")
-    (let ((workflow-url (read-line)))
-      (cond
-	((string= workflow-url "")
-	 (setq workflow-url (page-url)))
-	((string= workflow-url "none")
-	 (setq workflow-url "")))
-      (setup-workflow workflow-name workflow-url))))
-;; (create-workflow)
-
-      
-;; get workflow name/url, blank defaults
 
 (defun json-decode (json-string)
   (jsown:parse json-string))
@@ -196,7 +182,7 @@
 	  "(in-package :kommissar)~%"
 	  (load-elements-string) "~%"
 	  (load-actions-string)
-	  ;;(load-dictionary-string)
+	  ;;(load-dictionary-string) transactional dict record?
 	  (load-script)
 	  )
 	  ))
@@ -204,19 +190,6 @@
 
 ;; (store-workflow "testworkflow")
 
-(defun mouse-click (target-key)
-  (let ((element (jsown:val elements target-key)))
-    (print 
-    (moz-eval (concatenate 'string
-     (get-elem (jsown:val element "xPath"))
-     ".click()")))))
-
-(defun set-text (target-key text)
- (let ((element (jsown:val elements target-key)))
-    (print 
-    (moz-eval (concatenate 'string
-     (get-elem (jsown:val element "xPath"))
-     ".value = '" text "'")))))
 
 (defun action-sexp (action)
   (let ((target-key (jsown:val action "target"))
@@ -224,8 +197,9 @@
 	(args (jsown:val action "args")))
     (print action-type)
      (cond
+       ((string= action-type "dict-scrape") (concatenate 'string
+	"(setq " (first args) " (dict-scrape \"" target-key "\"))"))
        ((string= action-type "mouse-click") (concatenate 'string
 	"(mouse-click \"" target-key "\")"))
        ((string= action-type "set-text") (concatenate 'string
 	"(set-text \"" target-key "\" \"" (first args) "\")")))))
-

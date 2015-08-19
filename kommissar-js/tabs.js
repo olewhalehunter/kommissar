@@ -44,6 +44,13 @@ function closeTab(tabID){
     content.window.close(tabID);
 }
 
+function scrollDown(){
+    content.window.scrollBy(0, 90);
+}
+
+function scrollUp(){
+    content.window.scrollBy(0, -90);
+}
 
 
 
