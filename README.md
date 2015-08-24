@@ -6,7 +6,7 @@ Kommissar is a
 1. browser automation development environment using Emacs and an interactive browser addon
 2. Common Lisp library for generating and maintaining web user simulation applications
 
-Kommissar's primary function is to compile lisp userscripts from manually recorded actions in the browser that you can then use to build more intelligent programs or bots.
+Kommissar's primary function is to compile lisp userscripts from manually recorded actions in the browser that you can then use to build web-oriented programs or bots.
 
 You can use kommissar to:
 * make bots
