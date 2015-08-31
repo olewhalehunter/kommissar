@@ -1,12 +1,16 @@
 ;; to-do:
 ;; -
+"The value -10 is not of type SB-INT:INDEX. bug"
+;;^reproduce -> repeat testworkflow command a lot
+;; moz-eval -> read-until "start"
+"highlight/border identified element"
 ;; multi-page workflows
 "start workflow command (query for url or blank for use current/none)"
 "create current workflow object"
 "master listener for tool postbacks"
 "postback to master lisp to store elements with each record"
-;; record scrape/bind value -> dictionary
-;; highlight border of current/hovered element
+"gui elements reload/workflow load"
+;; add ParenScript support
 ;; toggle show info above each id'd element
 ;; ensure tool divs coordinates fully in view
 ;;  --
@@ -26,12 +30,13 @@
 (ql:quickload :telnetlib)
 (ql:quickload :jsown)
 (defun package-init ()
-(defpackage :kommissar (:use :cl :telnetlib))
+(defpackage :kommissar (:use :cl :telnetlib :parenscript))
 (in-package :kommissar)
 (eval-when 
     (:compile-toplevel :load-toplevel :execute)
-  (ql:quickload :telnetlib))
+  (ql:quickload :telnetlib :parenscript))
 ) (package-init)
+
 (defparameter kom-session '())
 (defparameter moz-return-val "")
 (defparameter kommissar-js-folder
@@ -49,6 +54,7 @@
   (concatenate 'string "\"START\" + (" input ") + \"END\""))
 (defun moz-send (input)
   (telnetlib:write-ln kom-session input))
+
 (defun moz-eval (input)
   (moz-send (moz-wrapper input))
   (print (telnetlib:read-until kom-session "START"))
@@ -56,6 +62,11 @@
 			     (telnetlib:read-until kom-session "END" ))))
     retval
     ))
+
+(defun ps-eval (input)
+  "Evaluate ParenScript sexps"
+  (moz-send (ps (lisp (read-from-string input)))))
+
 (defun moz-eval-file (file-name)  
   (telnetlib:write-ln
    kom-session
@@ -109,7 +120,6 @@
     (moz-eval (concatenate 'string
      (get-elem (jsown:val element "xPath"))
      ".innerHTML"))))
-
 
 (defun unit-tests ()
   (forward-tab)
@@ -188,8 +198,7 @@
 	  ))
 )
 
-;; (store-workflow "testworkflow")
-
+;; (store-workflow "~/projects/kommissar/testworkflow")
 
 (defun action-sexp (action)
   (let ((target-key (jsown:val action "target"))

@@ -1,4 +1,4 @@
-;; Emacs binds
+;; Kommissar Emacs binds
 
 (defun eval-slime (str)
   "Eval STR as Common Lisp code."
@@ -14,7 +14,7 @@
 
 (defun kom-start ()
   (interactive)
-  (eval-slime "(kommissar::start-kommissar)")
+  (slime-load-file "~/projects/kommissar/kommissar.lisp")
   )
 
 (defun kom-refresh ()
@@ -32,22 +32,35 @@
 (defun kom-backward-tab ()
   (interactive)
   (eval-slime "(kommissar::backward-tab)"))
+
+(defun kom-open (url)
+  (eval-slime (concat "(kommissar::open-url \""
+		      url "\" \"kommissarTab\")"))
+  )
+
+(defun kom-goto-tab (regex)
+  (eval-slime (concatenate 'string "(kommissar::goto-tab \"" regex "\")")))
+
 (defun kom-open-url ()
   (interactive)
   (eval-slime
    (concat "(kommissar::open-url \""
 	   (read-string "URL: ")"\" \"kommissarTab\")")))
-
+(defun kom-close-tab ()
+  (interactive)
+  (eval-slime "(kommissar::close-tab \"\")"))
 (defun kom-google ()
   (interactive)
   (eval-slime
    (concat "(kommissar::open-url \"http://www.google.com/search?q="
 			  (replace-regexp-in-string " " "+" 
 						    (read-from-minibuffer "google: "))
-			  "\" \"kommissarTab\")"
+			  "\" \"googleTab\")"
 			  ))
   (eval-slime "(kommissar::goto-tab \"Goog\")")
   )
+(defun google ()
+  (interactive) (kom-google))
 
 (set-key "<f4>" 'kom-start)
 (set-key "<f5>" 'kom-refresh)
@@ -56,20 +69,29 @@
 (set-key "<f9>" 'kom-backward-tab)
 (set-key "<f10>" 'kom-forward-tab)
 (set-key "<home>" 'kom-google)
+(set-key "<insert>" 'kom-chan-reply)
+    
+(fset 'ksl
+   "(eval-slime \"(kommissar::ps-eval \\\"\C-e\\\")\")")
+(defun kom-send-line () (interactive)
+    (beginning-of-line)
+    (execute-kbd-macro (symbol-function 'ksl))
+    (eval-last-sexp 1)
+    (undo)
+    )
+(set-key "<f1>" 'kom-send-line) ;; <- use this for interactive ParenScript development
 
-; (global-set-key (kbd "M-s") 'moz-back-tab)
-; (global-set-key (kbd "M-e") 'moz-send-region)
-(slime-load-file "kommissar.lisp")
-(kom-start)
+(register 
+(add-hook
+ 'slime-connected-hook
+ (lambda ()
+   (kom-start)
+   ))
+
 ;; pref("extensions.mozrepl.autoStart", true);
 ;; ^ put in "pref.js" in firefox profile directory during installer
 ;; (eshell-command "cp ~/emacs-tools/kommissar.lisp ~/projects/kommissar/kommissar.lisp")
 ;; (eshell-command "cp ~/emacs-tools/kommissar.el ~/projects/kommissar/kommissar.el")
 ;; (eshell-command "cp ~/emacs-tools/kommissar-js/kommissar-utils.js ~/projects/kommissar/kommissar-js/kommissar-utils.js")
-;; ;; (eshell-command "cp ~/emacs-tools/testworkflow.lisp ~/projects/kommissar/testworkflow.lisp")
-
-
-
-
-
+;; ;; (eshell-command "cp ~/emacs-tools/testworkflow.lisp ~/projects/kommissar/testworkflow.
 
