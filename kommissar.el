@@ -71,17 +71,27 @@
 (set-key "<home>" 'kom-google)
 (set-key "<insert>" 'kom-chan-reply)
     
-(fset 'ksl
-   "(eval-slime \"(kommissar::ps-eval \\\"\C-e\\\")\")")
+;; (fset 'ksl
+;;    "(eval-slime \"(kommissar::ps-eval \\\"\C-e\\\")\")")
 (defun kom-send-line () (interactive)
     (beginning-of-line)
-    (execute-kbd-macro (symbol-function 'ksl))
-    (eval-last-sexp 1)
-    (undo)
+    (call-interactively 'set-mark-command)
+    (end-of-line)
+    (call-interactively 'kom-send-region)
     )
-(set-key "<f1>" 'kom-send-line) ;; <- use this for interactive ParenScript development
+(defun kom-send-region (start end) 
+  (interactive "r")
+  (print (buffer-substring-no-properties start end))
+  (eval-slime
+   (concat "(kommissar::ps-eval \""
+	   (buffer-substring-no-properties
+	    start end) "\"))"))
+  )
 
-(register 
+
+(set-key "<f1>" 'kom-send-region) ;; <- use this for interactive ParenScript development
+
+
 (add-hook
  'slime-connected-hook
  (lambda ()

@@ -29,13 +29,14 @@
 
 (ql:quickload :telnetlib)
 (ql:quickload :jsown)
+(ql:quickload :parenscript)
 (defun package-init ()
-(defpackage :kommissar (:use :cl :telnetlib :parenscript))
+(defpackage :kommissar (:use :cl :telnetlib))
 (in-package :kommissar)
 (eval-when 
     (:compile-toplevel :load-toplevel :execute)
-  (ql:quickload :telnetlib :parenscript))
-) (package-init)
+  (ql:quickload :telnetlib))
+) 
 
 (defparameter kom-session '())
 (defparameter moz-return-val "")
@@ -57,7 +58,7 @@
 
 (defun moz-eval (input)
   (moz-send (moz-wrapper input))
-  (print (telnetlib:read-until kom-session "START"))
+  (print (telnetlib:read-until kom-session "START"))2
   (let ((retval (string-trim "END"
 			     (telnetlib:read-until kom-session "END" ))))
     retval
@@ -65,7 +66,13 @@
 
 (defun ps-eval (input)
   "Evaluate ParenScript sexps"
-  (moz-send (ps (lisp (read-from-string input)))))
+  (moz-send (parenscript::ps (parenscript::lisp (read-from-string input)))))
+(ps-eval "(alert 1)")
+
+(defun push-var (var val)
+  "Add variable/value pair to DOM container"
+  (moz-eval "window.document.body.dcont = 1")
+  )
 
 (defun moz-eval-file (file-name)  
   (telnetlib:write-ln
