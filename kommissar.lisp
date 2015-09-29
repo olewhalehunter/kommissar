@@ -36,13 +36,13 @@
 (eval-when 
     (:compile-toplevel :load-toplevel :execute)
   (ql:quickload :telnetlib))
-) 
+) (package-init)
 
 (defparameter kom-session '())
 (defparameter moz-return-val "")
 (defparameter kommissar-js-folder
   (cond ((string= (software-type) "Linux")
-	 "home/owner/emacs-tools/kommissar-js/")
+	 "home/frog/projects/kommissar/kommissar-js/")
 	((string= (software-type) "Windows")
 	 "")))
 (defun read-file-as-string (file-name)
@@ -67,7 +67,6 @@
 (defun ps-eval (input)
   "Evaluate ParenScript sexps"
   (moz-send (parenscript::ps (parenscript::lisp (read-from-string input)))))
-(ps-eval "(alert 1)")
 
 (defun push-var (var val)
   "Add variable/value pair to DOM container"
@@ -108,6 +107,17 @@
   (moz-eval (concatenate 'string
 			 "content.document.getElementById(\"" id "\").innerHTML")))
 
+(defun download-page (target-folder)
+  (sb-ext:run-program "/usr/bin/wget"  ;; SBCL+linux only
+		      (list (current-url) "-P" target-folder)))
+
+(defun download-url (url target-folder)
+  (sb-ext:run-program "/usr/bin/wget"  ;; SBCL+linux ONLY
+		      (list url "-P" target-folder)))
+
+(download-page "/home/frog/projects/kommissar/")
+(download-url "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js" "/home/frog/")
+
 (defun mouse-click (target-key)
   (let ((element (jsown:val elements target-key)))
     (print 
@@ -138,6 +148,11 @@
   (scroll-down)
   (scroll-up)
   (close-tab "google")
+  (download-page 
+   "/home/frog/projects/")
+  (download-url 
+   "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js" 
+   "/home/frog/")
   (progn 
     (refresh)
     (moz-eval-file "kommissar-utils.js")
@@ -150,8 +165,8 @@
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
   (print (moz-send "alert(\"Kommissar started!\")"))
-  (moz-eval-file "tabs.js")
-)
+;;  (moz-eval-file "~/kommissar-js/tabs.js")
+) ;; (start-moz-client)
 
 (defun start-kommissar ()
   (ignore-errors

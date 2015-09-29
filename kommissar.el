@@ -59,6 +59,15 @@
 			  ))
   (eval-slime "(kommissar::goto-tab \"Goog\")")
   )
+(defun kom-download-page ()
+  (interactive)
+  (eval-slime
+   (concat  "(kommissar::download-page \""
+	    (replace-regexp-in-string " " "+" 
+				      (read-from-minibuffer 
+				       "downloading current page, target folder : "))
+	    "\")")))
+			 
 (defun google ()
   (interactive) (kom-google))
 
@@ -87,7 +96,6 @@
 	   (buffer-substring-no-properties
 	    start end) "\"))"))
   )
-
 
 (set-key "<f1>" 'kom-send-region) ;; <- use this for interactive ParenScript development
 
