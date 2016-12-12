@@ -26,3 +26,9 @@
 (setq firstRedditLinkTitle (dict-scrape "firstRedditLink"))
 (set-text "redditSearch" firstRedditLinkTitle)
 ) ;;(workflow-script)
+
+;;
+
+
+
+

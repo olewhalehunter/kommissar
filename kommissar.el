@@ -22,7 +22,9 @@
   (eval-slime "(kommissar::refresh)"))
 (defun kom-scroll-down ()
   (interactive)
-  (eval-slime "(kommissar::scroll-down)"))
+  (print "scrolling down")
+  (eval-slime "(kommissar::scroll-down)")
+)
 (defun kom-scroll-up ()
   (interactive)
   (eval-slime "(kommissar::scroll-up)"))
@@ -49,16 +51,16 @@
 (defun kom-close-tab ()
   (interactive)
   (eval-slime "(kommissar::close-tab \"\")"))
-(defun kom-google ()
+(defun kom-search ()
   (interactive)
   (eval-slime
-   (concat "(kommissar::open-url \"http://www.google.com/search?q="
+   (concat "(kommissar::open-url \"https://www.duckduckgo.com/"
 			  (replace-regexp-in-string " " "+" 
-						    (read-from-minibuffer "google: "))
+						    (read-from-minibuffer "search engine: "))
 			  "\" \"googleTab\")"
 			  ))
-  (eval-slime "(kommissar::goto-tab \"Goog\")")
   )
+
 (defun kom-download-page ()
   (interactive)
   (eval-slime
@@ -70,6 +72,7 @@
 			 
 (defun google ()
   (interactive) (kom-google))
+
 
 (set-key "<f4>" 'kom-start)
 (set-key "<f5>" 'kom-refresh)
@@ -96,6 +99,7 @@
 	   (buffer-substring-no-properties
 	    start end) "\"))"))
   )
+
 
 (set-key "<f1>" 'kom-send-region) ;; <- use this for interactive ParenScript development
 

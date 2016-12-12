@@ -1,7 +1,6 @@
 ;; to-do:
 ;; -
-"The value -10 is not of type SB-INT:INDEX. bug"
-;;^reproduce -> repeat testworkflow command a lot
+;; reproduce repeat testworkflow command 
 ;; moz-eval -> read-until "start"
 "highlight/border identified element"
 ;; multi-page workflows
@@ -10,7 +9,7 @@
 "master listener for tool postbacks"
 "postback to master lisp to store elements with each record"
 "gui elements reload/workflow load"
-;; add ParenScript support
+;; add better ParenScript support
 ;; toggle show info above each id'd element
 ;; ensure tool divs coordinates fully in view
 ;;  --
@@ -57,12 +56,14 @@
   (telnetlib:write-ln kom-session input))
 
 (defun moz-eval (input)
-  (moz-send (moz-wrapper input))
-  (print (telnetlib:read-until kom-session "START"))2
-  (let ((retval (string-trim "END"
-			     (telnetlib:read-until kom-session "END" ))))
-    retval
-    ))
+  (moz-send input) ;; moz-wrapper
+  ;; (print (telnetlib:read-until kom-session "START"))
+  ;; (let ((retval (string-trim "END"
+  ;; 			     (telnetlib:read-until kom-session "END" ))))
+  ;;   retval
+  ;;   )
+
+)
 
 (defun ps-eval (input)
   "Evaluate ParenScript sexps"
@@ -115,9 +116,6 @@
   (sb-ext:run-program "/usr/bin/wget"  ;; SBCL+linux ONLY
 		      (list url "-P" target-folder)))
 
-(download-page "/home/frog/projects/kommissar/")
-(download-url "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js" "/home/frog/")
-
 (defun mouse-click (target-key)
   (let ((element (jsown:val elements target-key)))
     (print 
@@ -142,20 +140,16 @@
   (forward-tab)
   (refresh)
   (forward-tab)
-  (open-url "http://www.google.com" "google")
+  (open-url "localhost:8000")
   (backward-tab)
-  (goto-tab "Google")
+  (goto-tab "search")
   (scroll-down)
   (scroll-up)
-  (close-tab "google")
-  (download-page 
-   "/home/frog/projects/")
-  (download-url 
-   "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js" 
-   "/home/frog/")
+  (close-tab "search")
+
   (progn 
     (refresh)
-    (moz-eval-file "kommissar-utils.js")
+    (moz-eval-file "tabs.js")
     )
   )
 (defun start-moz-client ()
@@ -164,8 +158,8 @@
   (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
-  (print (moz-send "alert(\"Kommissar started!\")"))
-;;  (moz-eval-file "~/kommissar-js/tabs.js")
+  ;; (print (moz-send "alert(\"Kommissar started!\")"))
+  (moz-eval (parenscript::ps-compile-file "/kommissar-js/tabs.lisp"))
 ) ;; (start-moz-client)
 
 (defun start-kommissar ()
@@ -220,8 +214,6 @@
 	  ))
 )
 
-;; (store-workflow "~/projects/kommissar/testworkflow")
-
 (defun action-sexp (action)
   (let ((target-key (jsown:val action "target"))
 	(action-type (jsown:val action "action"))
@@ -234,3 +226,6 @@
 	"(mouse-click \"" target-key "\")"))
        ((string= action-type "set-text") (concatenate 'string
 	"(set-text \"" target-key "\" \"" (first args) "\")")))))
+
+
+
