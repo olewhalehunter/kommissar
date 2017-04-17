@@ -81,10 +81,7 @@
 (set-key "<f9>" 'kom-backward-tab)
 (set-key "<f10>" 'kom-forward-tab)
 (set-key "<home>" 'kom-google)
-(set-key "<insert>" 'kom-chan-reply)
     
-;; (fset 'ksl
-;;    "(eval-slime \"(kommissar::ps-eval \\\"\C-e\\\")\")")
 (defun kom-send-line () (interactive)
     (beginning-of-line)
     (call-interactively 'set-mark-command)
@@ -100,8 +97,8 @@
 	    start end) "\"))"))
   )
 
-
-(set-key "<f1>" 'kom-send-region) ;; <- use this for interactive ParenScript development
+;; for interactive ParenScript development
+(set-key "<f1>" 'kom-send-region) 
 
 
 (add-hook

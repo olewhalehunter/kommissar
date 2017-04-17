@@ -1,49 +1,20 @@
-;; to-do:
-;; -
-;; reproduce repeat testworkflow command 
-;; moz-eval -> read-until "start"
-"highlight/border identified element"
-;; multi-page workflows
-"start workflow command (query for url or blank for use current/none)"
-"create current workflow object"
-"master listener for tool postbacks"
-"postback to master lisp to store elements with each record"
-"gui elements reload/workflow load"
-;; add better ParenScript support
-;; toggle show info above each id'd element
-;; ensure tool divs coordinates fully in view
-;;  --
-;; record tab changes
-;; action-by-action runthrough of recording
-;; sequences of elements by interactive xpath regex highlight
-;; re-edit/re-order? actions in gui
-;; schmancy GUI styling
-;; lisp js DSL/vm/compiler (mainly for gui components)
-;; cross-page state validation for workflows
-;; better mozrepl debugging, repl instance tracking
-;; -user-select workaround wo stylish
-;; GUI fix without scriptish, rewrite mozrepl as new addon?
-;; google mouse track event fix
-;; set-text button only visible on input/textarea
-
-(ql:quickload :telnetlib)
-(ql:quickload :jsown)
-(ql:quickload :parenscript)
 (defun package-init ()
-(defpackage :kommissar (:use :cl :telnetlib))
-(in-package :kommissar)
-(eval-when 
-    (:compile-toplevel :load-toplevel :execute)
-  (ql:quickload :telnetlib))
-) (package-init)
+  (defpackage :kommissar (:use :cl :telnetlib))
+  (in-package :kommissar)
+  (eval-when 
+      (:compile-toplevel :load-toplevel :execute))
+  (mapcar 'quickload '(:telnetlib
+		       :jsown
+		       :parenscript))
+  ) (package-init)
 
-(defparameter kom-session '())
-(defparameter moz-return-val "")
-(defparameter kommissar-js-folder
-  (cond ((string= (software-type) "Linux")
-	 "home/frog/projects/kommissar/kommissar-js/")
-	((string= (software-type) "Windows")
-	 "")))
+(setq kom-session '()
+   moz-return-val ""
+   kommissar-js-folder (cond 
+			 ((string= (software-type) "Linux")
+			  "home/user/projects/kommissar/kommissar-js/")
+			 ((string= (software-type) "Windows")
+			  "")))
 (defun read-file-as-string (file-name)
   (format nil "~{~a~}"
 	  (with-open-file (stream file-name)
@@ -56,14 +27,7 @@
   (telnetlib:write-ln kom-session input))
 
 (defun moz-eval (input)
-  (moz-send input) ;; moz-wrapper
-  ;; (print (telnetlib:read-until kom-session "START"))
-  ;; (let ((retval (string-trim "END"
-  ;; 			     (telnetlib:read-until kom-session "END" ))))
-  ;;   retval
-  ;;   )
-
-)
+  (moz-send input))
 
 (defun ps-eval (input)
   "Evaluate ParenScript sexps"
@@ -71,8 +35,7 @@
 
 (defun push-var (var val)
   "Add variable/value pair to DOM container"
-  (moz-eval "window.document.body.dcont = 1")
-  )
+  (moz-eval "window.document.body.dcont = 1"))
 
 (defun moz-eval-file (file-name)  
   (telnetlib:write-ln
@@ -109,11 +72,11 @@
 			 "content.document.getElementById(\"" id "\").innerHTML")))
 
 (defun download-page (target-folder)
-  (sb-ext:run-program "/usr/bin/wget"  ;; SBCL+linux only
+  (sb-ext:run-program "/usr/bin/wget"
 		      (list (current-url) "-P" target-folder)))
 
 (defun download-url (url target-folder)
-  (sb-ext:run-program "/usr/bin/wget"  ;; SBCL+linux ONLY
+  (sb-ext:run-program "/usr/bin/wget"
 		      (list url "-P" target-folder)))
 
 (defun mouse-click (target-key)
@@ -158,7 +121,6 @@
   (setq kom-session (telnetlib:open-telnet-session "127.0.0.1" 4242))
   (telnetlib:set-telnet-session-option
    kom-session :remove-return-char t)
-  ;; (print (moz-send "alert(\"Kommissar started!\")"))
   (moz-eval (parenscript::ps-compile-file "/kommissar-js/tabs.lisp"))
 ) ;; (start-moz-client)
 
